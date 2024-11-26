@@ -13,6 +13,7 @@ type Operation = {
 /**
  * This list of operations is used to generate the manual testing UI.
  */
+
 const operations: Operation[] = [
   {
     name: "Get Session User (logged in user)",
@@ -80,9 +81,88 @@ const operations: Operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
-  //
-  // ...
-  //
+  {
+    name: "Get Tasks",
+    endpoint: "/api/tracking/tasks",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Create Task",
+    endpoint: "/api/tracking/tasks",
+    method: "POST",
+    fields: {
+      taskName: "input",
+      taskDescription: "input",
+      reps: "input",
+      sets: "input",
+      startingWeight: "input",
+    },
+  },
+  {
+    name: "Update Task",
+    endpoint: "/api/tracking/tasks/:taskName",
+    method: "PATCH",
+    fields: {
+      taskName: "input",
+      reps: "input",
+      sets: "input",
+      weight: "input",
+    },
+  },
+  {
+    name: "Delete Task",
+    endpoint: "/api/tracking/tasks/:taskName",
+    method: "DELETE",
+    fields: { taskName: "input" },
+  },
+  {
+    name: "Set User Goal",
+    endpoint: "/api/tracking/goal",
+    method: "POST",
+    fields: { goal: "input" },
+  },
+  {
+    name: "Toggle Task Completion",
+    endpoint: "/api/tracking/tasks/:taskName/completed",
+    method: "POST",
+    fields: { taskName: "input" },
+  },
+  {
+    name: "Check Task Completion",
+    endpoint: "/api/tracking/tasks/:taskName/completed",
+    method: "GET",
+    fields: { taskName: "input" },
+  },
+  {
+    name: "Reset Weekly Tasks",
+    endpoint: "/api/tracking/tasks/reset",
+    method: "POST",
+    fields: {},
+  },
+  {
+    name: "Get Progress History",
+    endpoint: "/api/tracking/history",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Prompt Change for Task",
+    endpoint: "/api/tracking/tasks/:taskName/prompt",
+    method: "POST",
+    fields: {
+      taskName: "input",
+      currentDifficulty: "input",
+    },
+  },
+  {
+    name: "Create Tracking Profile",
+    endpoint: "/api/tracking/profile",
+    method: "POST",
+    fields: {
+      userId: "input",
+    },
+  },
 ];
 
 /*

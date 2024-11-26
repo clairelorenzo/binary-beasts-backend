@@ -153,30 +153,21 @@ class Routes {
     const fromOid = (await Authing.getUserByUsername(from))._id;
     return await Friending.rejectRequest(fromOid, user);
   }
-  @Router.get("/percentage")
+  @Router.get("/tracking/percentage")
   async getCompletedPercentage(session: SessionDoc) {
     const user = Sessioning.getUser(session);
     const percentage = await Tracking.getCompletedPercentage(user);
     return { msg: "Percentage of tasks completed", percentage };
   }
 
-  @Router.get("/tasks")
+  @Router.get("/tracking/tasks")
   async getTasks(session: SessionDoc) {
-    const user = Sessioning.getUser(session); // Get the logged-in user
+    const user = Sessioning.getUser(session);
     const tasks = await Tracking.getTasks(user); // Fetch tasks using the new function
     return { msg: "Tasks retrieved successfully!", tasks };
   }
 
-  @Router.post("/tasks")
-  @Router.validate(
-    z.object({
-      taskName: z.string().min(1),
-      taskDescription: z.string().min(1),
-      reps: z.number().min(1),
-      sets: z.number().min(0).optional(),
-      startingWeight: z.number().min(0).optional(),
-    }),
-  )
+  @Router.post("/tracking/tasks")
   async createTask(session: SessionDoc, taskName: string, taskDescription: string, reps: number, sets?: number, startingWeight?: number) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.createTask(user, taskName, taskDescription, reps, sets, startingWeight);
@@ -187,78 +178,67 @@ class Routes {
     }
   }
 
-  @Router.patch("/tasks/:taskName")
-  @Router.validate(
-    z.object({
-      taskName: z.string().min(1),
-      reps: z.number().min(0).optional(),
-      sets: z.number().min(0).optional(),
-      weight: z.number().min(0).optional(),
-    }),
-  )
+  @Router.patch("/tracking/tasks/:taskName")
   async updateTask(session: SessionDoc, taskName: string, reps?: number, sets?: number, weight?: number) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.updateTask(user, taskName, reps, sets, weight);
     return { msg: "Task updated successfully!", task: result.task };
   }
 
-  @Router.delete("/tasks/:taskName")
-  @Router.validate(z.object({ taskName: z.string().min(1) }))
+  @Router.delete("/tracking/tasks/:taskName")
   async deleteTask(session: SessionDoc, taskName: string) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.deleteTask(user, taskName);
     return { msg: result.msg };
   }
 
-  @Router.post("/goal")
-  @Router.validate(z.object({ goal: z.string().min(1) }))
+  @Router.post("/tracking/goal")
   async setUserGoal(session: SessionDoc, goal: string) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.setUserGoal(user, goal);
     return { msg: result.msg, goal };
   }
 
-  @Router.post("/tasks/:taskName/completed")
-  @Router.validate(z.object({ taskName: z.string().min(1) }))
+  @Router.post("/tracking/tasks/:taskName/completed")
   async toggleTaskCompletion(session: SessionDoc, taskName: string) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.setCompleted(user, taskName);
     return { msg: result.msg };
   }
 
-  @Router.get("/tasks/:taskName/completed")
-  @Router.validate(z.object({ taskName: z.string().min(1) }))
+  @Router.get("/tracking/tasks/:taskName/completed")
   async isTaskCompleted(session: SessionDoc, taskName: string) {
     const user = Sessioning.getUser(session);
     const completed = await Tracking.isCompleted(user, taskName);
     return { taskName, completed };
   }
 
-  @Router.post("/tasks/reset")
+  @Router.post("/tracking/tasks/reset")
   async resetWeeklyTasks(session: SessionDoc) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.resetWeeklyTasks(user);
     return { msg: result.msg };
   }
 
-  @Router.get("/history")
+  @Router.get("/tracking/history")
   async getProgressHistory(session: SessionDoc) {
     const user = Sessioning.getUser(session);
     const history = await Tracking.getProgressHistory(user);
     return { msg: "Progress history retrieved successfully!", history };
   }
 
-  @Router.post("/tasks/:taskName/prompt")
-  @Router.validate(
-    z.object({
-      taskName: z.string().min(1),
-      currentDifficulty: z.enum(["Difficult", "JustRight", "Easy"]),
-    }),
-  )
+  @Router.post("/tracking/tasks/:taskName/prompt")
   async promptChange(session: SessionDoc, taskName: string, currentDifficulty: Difficulty) {
     const user = Sessioning.getUser(session);
     const result = await Tracking.promptChange(user, taskName, currentDifficulty);
     return { msg: result.msg, suggestion: result.task || null };
+  }
+
+  @Router.post("/tracking/profile")
+  async createTrackingProfile(userId: string) {
+    const userObjectId = new ObjectId(userId);
+    const result = await Tracking.createTrackingDoc(userObjectId);
+    return { msg: "Tracking profile created successfully!", trackingProfile: result };
   }
 }
 

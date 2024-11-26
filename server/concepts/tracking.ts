@@ -180,7 +180,7 @@ export default class TrackingConcept {
     return trackingDoc.progressHistory;
   }
 
-  private async createTrackingDoc(user: ObjectId) {
+  async createTrackingDoc(user: ObjectId) {
     let trackingDoc = await this.tracking.readOne({ user });
     if (!trackingDoc) {
       const newDoc: Omit<TrackingDoc, "_id" | "dateCreated" | "dateUpdated"> = {
