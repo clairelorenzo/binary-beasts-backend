@@ -163,6 +163,33 @@ const operations: Operation[] = [
       userId: "input",
     },
   },
+  {
+    name: "Point create",
+    endpoint: "/api/pointing",
+    method: "POST",
+    fields: {},
+  },
+  {
+    name: "Point get",
+    endpoint: "/api/pointing",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Point delete",
+    endpoint: "/api/pointing",
+    method: "DELETE",
+    fields: {},
+  },
+  {
+    name: "Point update",
+    endpoint: "/api/pointing",
+    method: "PATCH",
+    fields: {
+      amount: "input",
+      verifiedPost: "input",
+    },
+  },
 ];
 
 /*

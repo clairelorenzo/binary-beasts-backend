@@ -2,13 +2,13 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Posting, Sessioning, Tracking } from "./app";
+import { Authing, Friending, Pointing, Posting, Sessioning, Tracking } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import { Difficulty } from "./concepts/tracking";
 import Responses from "./responses";
 
-import { z } from "zod";
+import { number, z } from "zod";
 
 /**
  * Web server routes for the app. Implements synchronizations between concepts.
@@ -36,7 +36,12 @@ class Routes {
   @Router.post("/users")
   async createUser(session: SessionDoc, username: string, password: string) {
     Sessioning.isLoggedOut(session);
-    return await Authing.create(username, password);
+    const out = await Authing.create(username, password);
+    if (out.user) {
+      await Pointing.create(out.user._id);
+    }
+    return out;
+    // return await Authing.create(username, password);
   }
 
   @Router.patch("/users/username")
@@ -55,7 +60,12 @@ class Routes {
   async deleteUser(session: SessionDoc) {
     const user = Sessioning.getUser(session);
     Sessioning.end(session);
-    return await Authing.delete(user);
+    const out = await Authing.delete(user);
+    if (out) {
+      await Pointing.delete(user);
+    }
+    return out;
+    // return await Authing.delete(user);
   }
 
   @Router.post("/login")
@@ -239,6 +249,47 @@ class Routes {
     const userObjectId = new ObjectId(userId);
     const result = await Tracking.createTrackingDoc(userObjectId);
     return { msg: "Tracking profile created successfully!", trackingProfile: result };
+  }
+
+  // TODO: DELETE THIS LATER
+  @Router.post("/pointing")
+  async createUserPoints(session: SessionDoc) {
+    Sessioning.isLoggedIn(session);
+    const user = Sessioning.getUser(session);
+    const result = await Pointing.create(user);
+    return { msg: "Created point for current user", result };
+  }
+
+  @Router.delete("/pointing")
+  async deleteUserPoints(session: SessionDoc) {
+    Sessioning.isLoggedIn(session);
+    const user = Sessioning.getUser(session);
+    const result = await Pointing.delete(user);
+    return { msg: "Deleted point for current user", result };
+  }
+
+  @Router.get("/pointing")
+  async getUserPoints(session: SessionDoc) {
+    Sessioning.isLoggedIn(session);
+    const user = Sessioning.getUser(session);
+    const result = await Pointing.getPoints(user);
+    return { msg: "Points for current user", result };
+  }
+
+  @Router.patch("/pointing")
+  async awardUserPoints(session: SessionDoc, amount: string, verifiedPost?: string) {
+    Sessioning.isLoggedIn(session);
+    const numAmount = Number(amount)
+    const user = Sessioning.getUser(session);
+    if (verifiedPost) {
+      const postId = new ObjectId(verifiedPost);
+      await Posting.getById(postId);
+      const result = await Pointing.awardPoints(user, numAmount, postId);
+      return { msg: "points awarded", result };
+    } else {
+      const result = await Pointing.awardPoints(user, numAmount);
+      return { msg: "points awarded", result };
+    }
   }
 }
 
