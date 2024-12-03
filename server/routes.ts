@@ -272,14 +272,14 @@ class Routes {
   async getUserPoints(session: SessionDoc) {
     Sessioning.isLoggedIn(session);
     const user = Sessioning.getUser(session);
-    const result = await Pointing.getPoints(user);
+    const result = await Pointing.getUserPoints(user);
     return { msg: "Points for current user", result };
   }
 
   @Router.patch("/pointing")
   async awardUserPoints(session: SessionDoc, amount: string, verifiedPost?: string) {
     Sessioning.isLoggedIn(session);
-    const numAmount = Number(amount)
+    const numAmount = Number(amount);
     const user = Sessioning.getUser(session);
     if (verifiedPost) {
       const postId = new ObjectId(verifiedPost);
@@ -290,6 +290,12 @@ class Routes {
       const result = await Pointing.awardPoints(user, numAmount);
       return { msg: "points awarded", result };
     }
+  }
+
+  @Router.get("/pointing/top")
+  async getTopPoints(session: SessionDoc) {
+    const result = await Pointing.getPoints();
+    return { msg: "Top 5 points", result };
   }
 }
 

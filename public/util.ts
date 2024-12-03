@@ -176,6 +176,12 @@ const operations: Operation[] = [
     fields: {},
   },
   {
+    name: "Point get top 5",
+    endpoint: "/api/pointing/top",
+    method: "GET",
+    fields: {},
+  },
+  {
     name: "Point delete",
     endpoint: "/api/pointing",
     method: "DELETE",

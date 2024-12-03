@@ -29,10 +29,16 @@ export default class PointingConcept {
     return { msg: `Points Deleted for ${user}` };
   }
 
-  async getPoints(user: ObjectId) {
+  async getUserPoints(user: ObjectId) {
     const result = await this.points.readOne({ user });
     if (!result) throw new NotFoundError(`Points not found for ${user.toString()}`);
     return result;
+  }
+
+  async getPoints() {
+    const result = await this.points.readMany({}, { sort: { points: -1, _id: -1 }, limit: 5 });
+    if (!result) throw new NotFoundError(`Points not found`);
+    return result
   }
 
   async awardPoints(user: ObjectId, amount: number, verifiedPost?: ObjectId) {
